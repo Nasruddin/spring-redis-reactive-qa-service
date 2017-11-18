@@ -9,24 +9,26 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by nasruddin on 5/6/16.
+ * Created by nasir on 18/11/17.
  */
 @Entity
 @Getter
 @Setter
-public class Question implements Serializable {
+public class Answer implements Serializable {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name = "question_id")
+    @Column(name = "answer_id")
     private Long id;
 
-    @Column(name = "question")
-    private String question;
 
-    @Column(name = "question_votes")
+    @Column(name = "answer")
+    private String answer;
+
+    @Column(name = "answer_votes")
     private Long votes;
 
-    @OneToMany(mappedBy = "question")
-    private List<Answer> answerList;
+    @ManyToOne
+    @JoinColumn(name = "question_id", nullable = false)
+    private Question question;
 }

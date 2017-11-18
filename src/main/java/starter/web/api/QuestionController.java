@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import starter.domain.Question;
 import starter.service.QuestionService;
 
@@ -28,30 +25,18 @@ public class QuestionController {
         this.service = service;
     }
 
-
-    @RequestMapping(
-            value = "/save",
-            method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @PostMapping("/save")
     public ResponseEntity<Question> saveQuestion(@RequestBody Question question) {
 
         Question savedQuestion = service.saveQuestion(question);
-
         return new ResponseEntity<>(savedQuestion, HttpStatus.CREATED);
     }
 
-    @RequestMapping(
-            value = "get-all",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<List<String>> getAllQuestions() {
 
-        //List<String> lQuestion = stringRedisTemplate.opsForList().range("Questions",0,-1);
+    @GetMapping("/get-all")
+    public ResponseEntity<Map<Object, Object>> getAllQuestions() {
 
-        List<String> allQuestion = service.getAllQuestion();
-
+        Map<Object, Object> allQuestion = service.getAllQuestion();
         return new ResponseEntity<>(allQuestion, HttpStatus.OK);
 
     }

@@ -3,6 +3,7 @@ package starter.service;
 import starter.domain.Question;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by nasruddin on 5/6/16.
@@ -10,5 +11,6 @@ import java.util.List;
 public interface QuestionService {
 
     Question saveQuestion(Question question);
-    List<String> getAllQuestion();
+    Map<Object, Object> getAllQuestion();
+    void deleteQuestion(Long id);
 }
