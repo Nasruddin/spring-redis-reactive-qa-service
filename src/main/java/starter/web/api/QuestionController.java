@@ -2,42 +2,43 @@ package starter.web.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import starter.domain.Answer;
 import starter.domain.Question;
+import starter.service.AnswerService;
 import starter.service.QuestionService;
 
-import java.util.List;
+import javax.validation.Valid;
 import java.util.Map;
 
 /**
  * Created by nasruddin on 5/6/16.
  */
 @RestController
-@RequestMapping("/question")
+@RequestMapping("/questions")
 public class QuestionController {
 
-    private final QuestionService service;
+    private final QuestionService questionService;
+    private final AnswerService answerService;
 
     @Autowired
-    public QuestionController(QuestionService service) {
-        this.service = service;
+    public QuestionController(QuestionService questionService, AnswerService answerService) {
+        this.questionService = questionService;
+        this.answerService = answerService;
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<Question> saveQuestion(@RequestBody Question question) {
-
-        Question savedQuestion = service.saveQuestion(question);
+    @PostMapping
+    public ResponseEntity<Question> saveQuestion(@RequestBody @Valid Question question) {
+        Question savedQuestion = questionService.saveQuestion(question);
         return new ResponseEntity<>(savedQuestion, HttpStatus.CREATED);
     }
 
-
-    @GetMapping("/get-all")
-    public ResponseEntity<Map<Object, Object>> getAllQuestions() {
-
-        Map<Object, Object> allQuestion = service.getAllQuestion();
-        return new ResponseEntity<>(allQuestion, HttpStatus.OK);
-
+    @PostMapping("/{questionId}/answers")
+    public ResponseEntity<Answer> saveAnswer(@RequestBody @Valid Answer answer,
+                                             @PathVariable("questionId") Long questionId){
+        return new ResponseEntity<>(answerService.saveAnswer(answer, questionId)
+                .orElse(new Answer()), HttpStatus.OK);
     }
+
 }

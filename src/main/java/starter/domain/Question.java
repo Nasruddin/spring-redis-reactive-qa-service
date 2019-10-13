@@ -5,19 +5,17 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Created by nasruddin on 5/6/16.
  */
-@Entity
+@Entity(name = "questions")
 @Getter
 @Setter
-public class Question implements Serializable {
+public class Question extends AuditOperations implements Serializable {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "question_id")
     private Long id;
 
@@ -26,7 +24,4 @@ public class Question implements Serializable {
 
     @Column(name = "question_votes")
     private Long votes;
-
-    @OneToMany(mappedBy = "question")
-    private List<Answer> answerList;
 }

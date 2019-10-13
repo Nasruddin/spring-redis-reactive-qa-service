@@ -1,15 +1,17 @@
 package starter.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import starter.cache.model.Timeline;
+import starter.cache.service.TimelineService;
 import starter.domain.Answer;
+import starter.domain.Question;
 import starter.repository.AnswerRepository;
+import starter.repository.QuestionRepository;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by nasir on 18/11/17.
@@ -19,35 +21,40 @@ import java.util.Map;
 public class AnswerServiceImpl implements AnswerService {
 
     private final AnswerRepository answerRepository;
-    //private final StringRedisTemplate redisTemplate;
-    private RedisTemplate<String, Answer> redisTemplate;
-    private HashOperations hashOperations;
-
-    private static final String KEY = "Answer";
-
-    @PostConstruct
-    private void init() {
-        hashOperations = redisTemplate.opsForHash();
-    }
+    private final QuestionRepository questionRepository;
+    private final TimelineService timelineService;
 
     @Autowired
-    public AnswerServiceImpl(AnswerRepository answerRepository, RedisTemplate redisTemplate) {
+    public AnswerServiceImpl(AnswerRepository answerRepository, QuestionRepository questionRepository, TimelineService timelineService) {
         this.answerRepository = answerRepository;
-        this.redisTemplate = redisTemplate;
+        this.questionRepository = questionRepository;
+        this.timelineService = timelineService;
     }
 
 
     @Override
-    public Answer saveAnswer(Answer answer) {
+    public Optional<Answer> saveAnswer(Answer answer, Long questionId) {
+        return questionRepository.findById(questionId)
+                .map(question -> {
+                    answer.setQuestion(question);
+                    Answer savedAnswer = answerRepository.save(answer);
+                    if (null != savedAnswer.getId()) {
+                        cacheAnswer(savedAnswer, questionId, question);
+                    }
+                    return savedAnswer;
+                });
+    }
 
-        Answer savedAnswer = answerRepository.save(answer);
-        hashOperations.put(KEY, savedAnswer.getId(), savedAnswer);
-        return savedAnswer;
+    private void cacheAnswer(Answer answer, Long questionId, Question question) {
+        Set<Answer> answers = answerRepository.findAnswerByQuestionId(questionId);
+        answers.add(answer);
+        Timeline timeline = Timeline.builder().id(questionId).question(question).answers(answers).build();
+        timelineService.save(timeline);
     }
 
     @Override
-    public Map<Object, Object> getAllAnswers() {
-        return hashOperations.entries(KEY);
+    public Timeline getAllAnswers(Long questionId) {
+       return timelineService.getTimeline(questionId).orElse(new Timeline());
     }
 
 }

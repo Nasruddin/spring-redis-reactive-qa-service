@@ -11,6 +11,4 @@ import java.util.Map;
 public interface QuestionService {
 
     Question saveQuestion(Question question);
-    Map<Object, Object> getAllQuestion();
-    void deleteQuestion(Long id);
 }
