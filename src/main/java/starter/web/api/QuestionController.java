@@ -34,7 +34,7 @@ public class QuestionController {
         return new ResponseEntity<>(savedQuestion, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{questionId}/answers")
+    @PostMapping("/{questionId}/answer")
     public ResponseEntity<Answer> saveAnswer(@RequestBody @Valid Answer answer,
                                              @PathVariable("questionId") Long questionId){
         return new ResponseEntity<>(answerService.saveAnswer(answer, questionId)
